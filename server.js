@@ -11,11 +11,11 @@ dotenv.config();
 const app = express();
 
 // --- CORS Middleware: ALLOW BOTH LOCALHOST AND DEPLOYED FRONTEND ---
-app.use(cors({
-  origin: ['https://invoice-frontend-beta-neon.vercel.app'],
-  credentials: true
-}));
-
+// app.use(cors({
+//   origin: ['https://invoice-frontend-beta-neon.vercel.app'],
+//   credentials: true
+// }));
+//app.use(cors());
 // --- Session Middleware: for login persistence ---
 app.use(session({
   secret: process.env.SESSION_SECRET,
