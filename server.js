@@ -14,7 +14,10 @@ const app = express();
 //   origin: 'http://localhost:3000',
 //   credentials: true
 // }));
-app.use(cors());
+app.use(cors({
+  origin: 'https://invoice-frontend-beta-neon.vercel.app', // <-- USE YOUR DEPLOYED FRONTEND!
+  credentials: true
+}));
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
