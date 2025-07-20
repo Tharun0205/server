@@ -20,7 +20,7 @@ app.use(session({
    }
 }));
 app.use(cors({
-  origin: "https://invoice-frontend-beta-neon.vercel.app",
+  origin: "https://client-eight-tawny-17.vercel.app",
   credentials: true
 }));
 
