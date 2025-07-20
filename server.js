@@ -20,7 +20,7 @@ app.use(session({
    }
 }));
 app.use(cors({
-  origin: "https://client-eight-tawny-17.vercel.app",
+  origin: ["https://client-eight-tawny-17.vercel.app","http://localhost:3000"],
   credentials: true
 }));
 
