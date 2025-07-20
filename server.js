@@ -9,6 +9,7 @@ import invoiceRoutes from './routes/invoice.js';
 
 dotenv.config();
 const app = express();
+app.set('trust proxy', 1);
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
