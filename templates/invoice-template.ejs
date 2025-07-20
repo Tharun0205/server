@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Invoice #<%= invoice.invoiceNumber %></title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #fff;
+      margin: 0;
+      padding: 40px 30px 30px 30px;
+      color: #111;
+      font-size: 15px;
+    }
+    .container {
+      max-width: 750px;
+      background: #fafbfc;
+      margin: auto;
+      border: 1px solid #ececec;
+      padding: 32px 32px 20px 32px;
+      border-radius: 14px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #6528F7;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 2.3em;
+      color: #6528F7;
+      font-weight: 800;
+      letter-spacing: 2px;
+    }
+    .meta {
+      text-align: right;
+      color: #333;
+      font-size: 1.08em;
+      line-height: 1.7;
+    }
+    .info-section {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 25px;
+      gap: 40px;
+    }
+    .info-card {
+      background: #eee9fd;
+      padding: 16px 22px;
+      border-radius: 7px;
+      min-width: 260px;
+      color: #222;
+    }
+    .info-title {
+      font-weight: 700;
+      color: #6528F7;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      font-size: 1em;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 26px 0 12px 0;
+    }
+    th, td {
+      text-align: left;
+      padding: 12px 8px;
+      border-bottom: 1px solid #ececec;
+    }
+    th {
+      background-color: #6528F7;
+      color: #fff;
+      font-weight: 600;
+      letter-spacing: 1px;
+      font-size: 1em;
+    }
+    tr:nth-child(even) {background-color: #f5f1fd;}
+    .totals {
+      margin-top: 32px;
+      float: right;
+      min-width: 260px;
+    }
+    .totals-table {
+      width: 100%;
+      font-size: 1.07em;
+    }
+    .totals-table tr td {
+      padding: 6px 8px;
+      font-weight: 500;
+      border: none;
+    }
+    .totals-table tr:last-child td {
+      color: #6528F7;
+      font-size: 1.25em;
+      font-weight: 790;
+      border-top: 2px solid #eee;
+      padding-top: 10px;
+    }
+    /* Optional: footer styling */
+    .footer {
+      width: 100%;
+      text-align: center;
+      color: #aaa;
+      font-size: 0.95em;
+      margin-top: 70px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>INVOICE</h1>
+    <div class="meta">
+      <strong>Invoice #:</strong> <%= invoice.invoiceNumber %><br>
+      <strong>Date:</strong> <%= invoice.dueDate ? invoice.dueDate : (invoice.date ? invoice.date.toDateString() : new Date().toDateString()) %>
+    </div>
+  </div>
+  <div class="info-section">
+    <div class="info-card">
+      <div class="info-title">FROM</div>
+      <div><b><%= invoice.sender.companyName %></b></div>
+      <div><%= invoice.sender.address %></div>
+      <div>Email: <%= invoice.sender.email %></div>
+      <div>Phone: <%= invoice.sender.phone %></div>
+    </div>
+    <div class="info-card">
+      <div class="info-title">TO</div>
+      <div><b><%= invoice.client.companyName %></b></div>
+      <div><%= invoice.client.address %></div>
+      <div>Email: <%= invoice.client.email %></div>
+      <div>Phone: <%= invoice.client.phone %></div>
+    </div>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Description</th>
+        <th>Qty</th>
+        <th>Rate (₹)</th>
+        <th>Amount (₹)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% invoice.items.forEach(item => { %>
+        <tr>
+          <td><%= item.description %></td>
+          <td><%= item.quantity %></td>
+          <td><%= Number(item.price).toFixed(2) %></td>
+          <td><%= (item.quantity * item.price).toFixed(2) %></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+  <div class="totals">
+    <table class="totals-table">
+      <tr>
+        <td>Subtotal:</td>
+        <td style="text-align:right;">₹<%= invoice.items.reduce((a,b)=>a+ (b.quantity*b.price),0).toFixed(2) %></td>
+      </tr>
+      <tr>
+        <td>Tax:</td>
+        <td style="text-align:right;">₹<%= invoice.tax ? Number(invoice.tax).toFixed(2) : '0.00' %></td>
+      </tr>
+      <tr>
+        <td>Discount:</td>
+        <td style="text-align:right;">₹<%= invoice.discount ? Number(invoice.discount).toFixed(2) : '0.00' %></td>
+      </tr>
+      <tr>
+        <td><b>Total:</b></td>
+        <td style="text-align:right;"><b>₹<%= invoice.total ? Number(invoice.total).toFixed(2) : '' %></b></td>
+      </tr>
+    </table>
+  </div>
+  <div style="clear: both;"></div>
+  <div class="footer">
+    Thank you for your business.
+  </div>
+</div>
+</body>
+</html>
