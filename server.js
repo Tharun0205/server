@@ -10,10 +10,7 @@ import invoiceRoutes from './routes/invoice.js';
 dotenv.config();
 const app = express();
 
-// app.use(cors({
-//   origin: 'http://localhost:3000',
-//   credentials: true
-// }));
+// --- CORS Middleware: ALLOW BOTH LOCALHOST AND DEPLOYED FRONTEND ---
 app.use(cors({
   origin: [
     'http://localhost:3000',
@@ -22,20 +19,26 @@ app.use(cors({
   credentials: true
 }));
 
+// --- Session Middleware: for login persistence ---
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: { secure: false }
 }));
+
+// --- Body Parser ---
 app.use(express.json());
 
+// --- Your Routes ---
 app.use('/api/auth', authRoutes);
 app.use('/api/invoices', invoiceRoutes);
 
+// --- MongoDB Connection ---
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     console.log("MongoDB Connected");
-    app.listen(process.env.PORT, () => console.log(`Server running on port ${process.env.PORT}`));
+    const port = process.env.PORT || 5000;
+    app.listen(port, () => console.log(`Server running on port ${port}`));
   })
   .catch((err) => console.error("MongoDB connection error:", err));
