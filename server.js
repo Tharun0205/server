@@ -12,10 +12,7 @@ const app = express();
 
 // --- CORS Middleware: ALLOW BOTH LOCALHOST AND DEPLOYED FRONTEND ---
 app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'https://invoice-frontend-beta-neon.vercel.app'
-  ],
+  origin: ['https://invoice-frontend-beta-neon.vercel.app'],
   credentials: true
 }));
 
