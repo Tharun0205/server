@@ -18,6 +18,10 @@ app.use(session({
     sameSite:'none'
    }
 }));
+app.use(cors({
+  origin: "https://invoice-frontend-beta-neon.vercel.app",
+  credentials: true
+}));
 
 // --- Body Parser ---
 app.use(express.json());
