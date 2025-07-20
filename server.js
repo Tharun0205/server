@@ -19,11 +19,11 @@ app.use(session({
     sameSite:'none'
    }
 }));
-app.use(cors({
-  origin: "https://client-eight-tawny-17.vercel.app",
-  credentials: true
-}));
-app.options("/*",cors());
+// app.use(cors({
+//   origin: "https://client-eight-tawny-17.vercel.app",
+//   credentials: true
+// }));
+
 
 // --- Body Parser ---
 app.use(express.json());
