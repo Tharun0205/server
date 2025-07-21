@@ -3,7 +3,7 @@ import User from '../models/User.js';
 import bcrypt from 'bcrypt';
 
 const router = express.Router();
-router.post('https://invoice-generator-ebon-eight.vercel.app/register', async (req, res) => {
+router.post('/register', async (req, res) => {
   const { username, email, password } = req.body;
   try {
     const alreadyUser = await User.findOne({ email });
@@ -20,7 +20,7 @@ router.post('https://invoice-generator-ebon-eight.vercel.app/register', async (r
     res.status(500).json({ error: 'Registration Failed', details: error.message });
   }
 });
-router.post('https://invoice-generator-ebon-eight.vercel.app/login', async (req, res) => {
+router.post('/login', async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
@@ -48,7 +48,7 @@ router.post('https://invoice-generator-ebon-eight.vercel.app/login', async (req,
   }
 });
 
-router.post('https://invoice-generator-ebon-eight.vercel.app/logout', (req, res) => {
+router.post('/logout', (req, res) => {
   req.session.destroy((err)=>{
     if(err){
       return res.status(500).json({message:"Logout failed"});
