@@ -10,11 +10,16 @@ const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-router.post('/', async (req, res) => {
+// ✅ Middleware to protect all routes below
+const requireLogin = (req, res, next) => {
   if (!req.session || !req.session.userId) {
-    return res.status(401).json({ message: 'Please login' });
+    return res.status(401).json({ message: 'Unauthorized. Please log in.' });
   }
+  next();
+};
 
+// ✅ Create invoice + PDF
+router.post('/', requireLogin, async (req, res) => {
   try {
     const invoice = new Invoice({
       ...req.body,
@@ -30,22 +35,20 @@ router.post('/', async (req, res) => {
     if (!fs.existsSync(pdfDir)) fs.mkdirSync(pdfDir);
 
     const pdfPath = path.join(pdfDir, `invoice-${invoice._id}.pdf`);
-   // in invoice.js backend
-  pdf.create(html).toFile(pdfPath, (err, result) => {
-  if (err) {
-    console.error("PDF generation error:", err);
-    return res.status(500).json({ message: 'Failed to generate PDF' });
-  }
 
-  const justFilename = path.basename(result.filename);
+    pdf.create(html).toFile(pdfPath, (err, result) => {
+      if (err) {
+        console.error("PDF generation error:", err);
+        return res.status(500).json({ message: 'Failed to generate PDF' });
+      }
 
-  res.status(201).json({
-    message: 'Invoice saved and PDF generated',
-    invoice,
-    pdfFilename: justFilename                // <-- this change!
-  });
-});
-
+      const justFilename = path.basename(result.filename);
+      res.status(201).json({
+        message: 'Invoice saved and PDF generated',
+        invoice,
+        pdfFilename: justFilename
+      });
+    });
 
   } catch (error) {
     console.error('Error occurred:', error);
@@ -53,11 +56,8 @@ router.post('/', async (req, res) => {
   }
 });
 
-router.get('/my', async (req, res) => {
-  if (!req.session.userId) {
-    return res.status(401).json({ message: 'Unauthorized: Not logged in' });
-  }
-
+// ✅ Get logged-in user's invoices
+router.get('/my', requireLogin, async (req, res) => {
   try {
     const invoices = await Invoice.find({ userId: req.session.userId });
     res.json(invoices);
@@ -65,16 +65,17 @@ router.get('/my', async (req, res) => {
     res.status(500).json({ message: 'Error fetching invoices', error: err.message });
   }
 });
+
+// ✅ Download invoice PDF
 router.get('/pdf/:filename', (req, res) => {
   const filename = req.params.filename;
   const pdfPath = path.join(__dirname, '../pdfs', filename);
 
   if (fs.existsSync(pdfPath)) {
-    res.download(pdfPath, filename); // Triggers download in browser
+    res.download(pdfPath, filename);
   } else {
     res.status(404).json({ message: 'PDF not found' });
   }
 });
-
 
 export default router;
