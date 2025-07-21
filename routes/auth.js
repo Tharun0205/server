@@ -62,6 +62,13 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ message: 'Login failed', error: error.message });
   }
 });
+router.get('/check-session', (req, res) => {
+  if (req.session.userId) {
+    res.json({ loggedIn: true, userId: req.session.userId });
+  } else {
+    res.status(401).json({ loggedIn: false });
+  }
+});
 
 // ✅ Logout Route
 router.post('/logout', (req, res) => {
