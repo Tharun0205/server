@@ -1,7 +1,6 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import cors from 'cors';
 import session from 'express-session';
 
 import authRoutes from './routes/auth.js';
@@ -9,44 +8,44 @@ import invoiceRoutes from './routes/invoice.js';
 
 dotenv.config();
 const app = express();
+
+// Trust proxy for secure cookies behind Vercel proxy
 app.set('trust proxy', 1);
+
+// Session config
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  cookie: { 
+  cookie: {
     secure: true,
-    sameSite:'none'
-   }
-}));
-app.options("*", cors({
-  origin: ["https://client-eight-tawny-17.vercel.app"],
-  credentials: true
+    sameSite: 'none'
+  }
 }));
 
-const allowedOrigins = ["https://client-eight-tawny-17.vercel.app"];
+// ✅ CORS handling — allow only specific origin
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin === 'https://client-eight-tawny-17.vercel.app') {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,PATCH,OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  }
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
 
-app.use(cors({
-  origin: function(origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true
-}));
-
-
-
-// --- Body Parser ---
+// Body parser
 app.use(express.json());
 
-// --- Your Routes ---
+// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/invoices', invoiceRoutes);
 
-// --- MongoDB Connection ---
+// MongoDB connection
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     console.log("MongoDB Connected");
