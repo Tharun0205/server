@@ -19,10 +19,24 @@ app.use(session({
     sameSite:'none'
    }
 }));
-app.use(cors({
-  origin: ["https://client-eight-tawny-17.vercel.app","http://localhost:3000"],
-  credentials: true
+app.options("*", cors({
+  origin: ["https://client-eight-tawny-17.vercel.app"],
+  credentials: true
 }));
+
+const allowedOrigins = ["https://client-eight-tawny-17.vercel.app"];
+
+app.use(cors({
+  origin: function(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
+
 
 
 // --- Body Parser ---
