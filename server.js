@@ -2,6 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import session from 'express-session';
+import MongoStore from 'connect-mongo';
 
 import authRoutes from './routes/auth.js';
 import invoiceRoutes from './routes/invoice.js';
@@ -12,18 +13,22 @@ const app = express();
 // Trust proxy for secure cookies behind Vercel proxy
 app.set('trust proxy', 1);
 
-// Session config
+// ✅ Use connect-mongo to store sessions
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGO_URI,
+    collectionName: 'sessions'
+  }),
   cookie: {
     secure: true,
     sameSite: 'none'
   }
 }));
 
-// ✅ CORS handling — allow only specific origin
+// ✅ CORS middleware
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   if (origin === 'https://client-eight-tawny-17.vercel.app') {
