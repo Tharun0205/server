@@ -9,14 +9,10 @@ import invoiceRoutes from './routes/invoice.js';
 
 dotenv.config();
 const app = express();
-
-// ✅ Trust proxy for secure cookies behind Vercel proxy
 app.set('trust proxy', 1);
 
-// ✅ Body parser
 app.use(express.json());
 
-// ✅ CORS handling middleware (only allow client Vercel domain)
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   const allowedOrigin = 'https://client-eight-tawny-17.vercel.app';
@@ -35,7 +31,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// ✅ Use connect-mongo to persist session data
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
@@ -52,11 +47,9 @@ app.use(
   })
 );
 
-// ✅ Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/invoices', invoiceRoutes);
 
-// ✅ Connect to MongoDB and start server
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
