@@ -1,11 +1,11 @@
 import express from 'express';
 import Invoice from '../models/Invoice.js';
 import ejs from 'ejs';
-import pdf from 'html-pdf';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import jwt from 'jsonwebtoken';
+import puppeteer from 'puppeteer';
 
 // Get __dirname in ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -30,7 +30,7 @@ const requireLogin = (req, res, next) => {
 const router = express.Router();
 
 // @route   POST /api/invoices/
-// @desc    Create invoice, generate PDF, and respond with invoice and PDF filename
+// @desc    Create invoice, generate PDF (with Puppeteer), and respond with invoice and PDF filename
 // @access  Protected (requires JWT)
 router.post('/', requireLogin, async (req, res) => {
   try {
@@ -52,18 +52,21 @@ router.post('/', requireLogin, async (req, res) => {
     // Define the PDF filename & path
     const pdfPath = path.join(pdfDir, `invoice-${invoice._id}.pdf`);
 
-    // Create PDF file from rendered HTML
-    pdf.create(html).toFile(pdfPath, (err, result) => {
-      if (err) {
-        console.error("PDF generation error:", err);
-        return res.status(500).json({ message: 'Failed to generate PDF' });
-      }
-      const justFilename = path.basename(result.filename);
-      res.status(201).json({
-        message: 'Invoice saved and PDF generated',
-        invoice,
-        pdfFilename: justFilename
-      });
+    // ==== Puppeteer PDF generation ====
+    const browser = await puppeteer.launch({
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: 'networkidle0' });
+    await page.pdf({ path: pdfPath, format: 'A4' });
+    await browser.close();
+    // ==================================
+
+    const justFilename = path.basename(pdfPath);
+    res.status(201).json({
+      message: 'Invoice saved and PDF generated',
+      invoice,
+      pdfFilename: justFilename
     });
 
   } catch (error) {
@@ -95,7 +98,6 @@ router.get('/pdf/:filename', (req, res) => {
     res.download(pdfPath, filename, (err) => {
       if (err) {
         console.error('Error sending file:', err);
-        // Can also handle if headers already sent
       }
     });
   } else {
